@@ -1,6 +1,3 @@
-const axios = require('axios');
-const fs = require('fs').promises;
-
 async function recognize(base64, lang, options) {
     const { config, utils } = options;
     const { cacheDir, readBinaryFile, http } = utils;

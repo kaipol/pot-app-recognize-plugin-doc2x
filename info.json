@@ -6,24 +6,6 @@
   "homepage": "https://github.com/Menghuan1918/pot-app-recognize-plugin-doc2x",
   "needs": [
     {
-      "key": "formula",
-      "display": "纯公式模式",
-      "type": "select",
-      "options": {
-        "0": "OFF",
-        "1": "ON"
-      }
-    },
-    {
-      "key": "img_correction",
-      "display": "图片校正",
-      "type": "select",
-      "options": {
-        "0": "OFF",
-        "1": "ON"
-      }
-    },
-    {
       "key": "apikey",
       "display": "Api Key",
       "type": "input"

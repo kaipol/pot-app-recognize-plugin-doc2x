@@ -1,6 +1,6 @@
 async function recognize(base64, lang, options) {
     const { config, utils } = options;
-    const { cacheDir, readBinaryFile,tauritauriFetch } = utils;
+    const { cacheDir, readBinaryFile,tauriFetch } = utils;
     let { formula, img_correction, apikey } = config;
 
     if (!apikey || apikey.trim() === "") {

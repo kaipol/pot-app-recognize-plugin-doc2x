@@ -27,7 +27,7 @@ async function recognize(base64, lang, options) {
         throw new Error(`Preupload request failed: ${error.message}`);
     }
 
-    const { url: uploadUrl, uid } = preuploadData.data;
+    const { uid, url: uploadUrl } = preuploadData.data;
 
     // Step 2: 上传文件到获取的 URL
     let fileContent;
@@ -51,32 +51,40 @@ async function recognize(base64, lang, options) {
     }
 
     // Step 3: 轮询结果
-    while (true) {
-        try {
-            const statusResponse = await fetch(`${baseUrl}/api/v2/parse/status?uid=${uid}`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${apikey}`,
-                },
-            });
+while (true) {
+    try {
+        const statusResponse = await fetch(`${baseUrl}/api/v2/parse/status?uid=${uid}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${apikey}`,
+            },
+        });
 
-            const statusData = await statusResponse.json();
-            if (!statusResponse.ok) {
-                throw new Error(`Failed to get status: ${JSON.stringify(statusData)}`);
-            }
-
-            const { status, result, progress, detail } = statusData.data;
-
-            if (status === "success") {
-                return result.pages[0].md; // 返回第一个页面的 Markdown 内容
-            } else if (status === "processing") {
-                console.log(`Processing: ${progress}%`);
-                await new Promise((resolve) => setTimeout(resolve, 3000));
-            } else {
-                throw new Error(`Task failed or unexpected status: ${detail || JSON.stringify(statusData)}`);
-            }
-        } catch (error) {
-            throw new Error(`Error while polling status: ${error.message}`);
+        // 检查响应是否成功
+        if (!statusResponse.ok) {
+            throw new Error(`Failed to fetch status: HTTP ${statusResponse.status} - ${statusResponse.statusText}`);
         }
+
+        const statusData = await statusResponse.json();
+
+        // 确保返回的数据包含必要字段
+        if (!statusData || !statusData.data) {
+            throw new Error(`Invalid response format: ${JSON.stringify(statusData)}`);
+        }
+
+        const { progress,status,detail,result } = statusData.data;
+
+        if (status === "success") {
+            return result.pages[0].md; // 返回第一个页面的 Markdown 内容
+        } else if (status === "processing") {
+            console.log(`Processing: ${progress}%`);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+        } else {
+            throw new Error(`Task failed or unexpected status: ${detail || JSON.stringify(statusData)}`);
+        }
+    } catch (error) {
+        throw new Error(`Error while polling status: ${error.message}`);
     }
+}
+
 }
